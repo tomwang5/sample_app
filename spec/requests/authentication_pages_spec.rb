@@ -69,9 +69,7 @@ describe "AuthenticationPages" do
       describe 'when attempting to visit a protected page' do
         before do
           visit edit_user_path(user)
-          fill_in 'Email', with: user.email
-          fill_in 'Password', with: user.password
-          click_button 'Sign in'
+          valid_signin(user)
         end
 
         describe 'after signing in' do
@@ -79,6 +77,24 @@ describe "AuthenticationPages" do
             page.should have_selector('title', text: 'Edit user')
           end
         end
+
+        describe 'when signing in again' do
+          before { sign_in(user) }
+
+          it 'should render the default (profile) page' do
+            page.should have_selector('title', text: user.name)
+          end
+        end
+      end
+
+      describe 'links should be absent' do
+        before { visit root_path }
+        
+        it { should_not have_link('Users', href: users_path) }
+        it { should_not have_link('Profile', href: user_path(user)) }
+        it { should_not have_link('Settings', href: edit_user_path(user)) }
+        it { should_not have_link('Sign out', href: signout_path) }
+        it { should have_link('Sign in', href: signin_path) }
       end
     end
 
